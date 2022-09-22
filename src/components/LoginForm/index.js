@@ -1,4 +1,5 @@
 import {Component} from 'react'
+
 import './index.css'
 
 class LoginForm extends Component {
@@ -9,12 +10,11 @@ class LoginForm extends Component {
     errorMsg: '',
   }
 
-  onChangeUsername = event => {
-    this.setState({username: event.target.value})
-  }
-
-  onChangePassword = event => {
-    this.setState({password: event.target.value})
+  onSubmitFailure = errorMsg => {
+    this.setState({
+      showSubmitError: true,
+      errorMsg,
+    })
   }
 
   onSubmitSuccess = () => {
@@ -22,28 +22,31 @@ class LoginForm extends Component {
     history.replace('/')
   }
 
-  onSubmitFailure = errorMsg => {
-    this.setState({showSubmitError: true, errorMsg})
-  }
-
-  SubmitForm = async event => {
+  submitForm = async event => {
     event.preventDefault()
     const {username, password} = this.state
     const userDetails = {username, password}
-
     const url = 'https://apis.ccbp.in/login'
     const options = {
       method: 'POST',
       body: JSON.stringify(userDetails),
     }
     const response = await fetch(url, options)
-    const data = response.json()
+    const data = await response.json()
     console.log(data)
     if (response.ok === true) {
       this.onSubmitSuccess()
     } else {
       this.onSubmitFailure(data.error_msg)
     }
+  }
+
+  onChangeUsername = event => {
+    this.setState({username: event.target.value})
+  }
+
+  onChangePassword = event => {
+    this.setState({password: event.target.value})
   }
 
   renderPasswordField = () => {
@@ -98,7 +101,7 @@ class LoginForm extends Component {
           className="login-image"
           alt="website login"
         />
-        <form className="form-container" onSubmit={this.SubmitForm}>
+        <form className="form-container" onSubmit={this.submitForm}>
           <img
             src="https://assets.ccbp.in/frontend/react-js/nxt-trendz-logo-img.png"
             className="login-website-logo-desktop-image"
@@ -109,7 +112,7 @@ class LoginForm extends Component {
           <button type="submit" className="login-button">
             Login
           </button>
-          {showSubmitError && <p className="error-message">*{errorMsg}</p>}
+          {showSubmitError && <p className="error-message">{errorMsg}</p>}
         </form>
       </div>
     )
